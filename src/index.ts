@@ -36,4 +36,4 @@ program
 
 program.parse(process.argv)
 const options = program.opts<Options>()
-main(options)
+//main(options)

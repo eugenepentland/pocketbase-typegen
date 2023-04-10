@@ -26,7 +26,6 @@ export function generate(results: Array<CollectionRecord>): string {
   const collectionNames: Array<string> = []
   const recordTypes: Array<string> = []
   const responseTypes: Array<string> = [RESPONSE_TYPE_COMMENT]
-
   results
     .sort((a, b) => (a.name <= b.name ? -1 : 1))
     .forEach((row) => {

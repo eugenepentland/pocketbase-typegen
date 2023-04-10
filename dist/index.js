@@ -40,33 +40,32 @@ async function fromURL(url, email = "", password = "") {
 // src/constants.ts
 var EXPORT_COMMENT = `/**
 * This file was @generated using pocketbase-typegen
-*/`;
+*/
+import {z} from 'zod'
+`;
 var RECORD_TYPE_COMMENT = `// Record types for each collection`;
 var RESPONSE_TYPE_COMMENT = `// Response types include system fields and match responses from the PocketBase API`;
 var ALL_RECORD_RESPONSE_COMMENT = `// Types containing all Records and Responses, useful for creating typing helper functions`;
 var EXPAND_GENERIC_NAME = "expand";
 var DATE_STRING_TYPE_NAME = `IsoDateString`;
-var RECORD_ID_STRING_NAME = `RecordIdString`;
+var RECORD_ID_STRING_NAME = `z.string()`;
 var HTML_STRING_NAME = `HTMLString`;
 var ALIAS_TYPE_DEFINITIONS = `// Alias types for improved usability
 export type ${DATE_STRING_TYPE_NAME} = string
 export type ${RECORD_ID_STRING_NAME} = string
 export type ${HTML_STRING_NAME} = string`;
 var BASE_SYSTEM_FIELDS_DEFINITION = `// System fields
-export type BaseSystemFields<T = never> = {
-	id: ${RECORD_ID_STRING_NAME}
-	created: ${DATE_STRING_TYPE_NAME}
-	updated: ${DATE_STRING_TYPE_NAME}
-	collectionId: string
-	collectionName: Collections
-	expand?: T
-}`;
-var AUTH_SYSTEM_FIELDS_DEFINITION = `export type AuthSystemFields<T = never> = {
-	email: string
-	emailVisibility: boolean
-	username: string
-	verified: boolean
-} & BaseSystemFields<T>`;
+export const BaseSystemFields = z.object({
+	id: z.string(),
+	created: z.coerce.date(),
+	updated: z.coerce.date(),
+})`;
+var AUTH_SYSTEM_FIELDS_DEFINITION = `export const AuthSystemFields = z.object({
+	email: z.string(),
+	emailVisibility: z.boolean(),
+	username: z.string(),
+	verified: z.boolean(),
+}).merge(BaseSystemFields)`;
 
 // src/generics.ts
 function fieldNameToGeneric(name) {
@@ -139,30 +138,18 @@ ${collections}
 }`;
   return typeString;
 }
-function createCollectionRecords(collectionNames) {
-  const nameRecordMap = collectionNames.map((name) => `	${name}: ${toPascalCase(name)}Record`).join("\n");
-  return `export type CollectionRecords = {
-${nameRecordMap}
-}`;
-}
-function createCollectionResponses(collectionNames) {
-  const nameRecordMap = collectionNames.map((name) => `	${name}: ${toPascalCase(name)}Response`).join("\n");
-  return `export type CollectionResponses = {
-${nameRecordMap}
-}`;
-}
 
 // src/fields.ts
 var pbSchemaTypescriptMap = {
-  bool: "boolean",
-  date: DATE_STRING_TYPE_NAME,
-  editor: HTML_STRING_NAME,
-  email: "string",
-  text: "string",
-  url: "string",
-  number: "number",
-  file: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? "string[]" : "string",
-  json: (fieldSchema) => `null | ${fieldNameToGeneric(fieldSchema.name)}`,
+  bool: "z.boolean()",
+  date: "z.coerce.date()",
+  editor: "z.string()",
+  email: "z.string()",
+  text: "z.string()",
+  url: "z.string()",
+  number: "z.number()",
+  file: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? "z.string().array()" : "z.string()",
+  json: (fieldSchema) => `z.object({})`,
   relation: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect === 1 ? RECORD_ID_STRING_NAME : `${RECORD_ID_STRING_NAME}[]`,
   select: (fieldSchema, collectionName) => {
     const valueType = fieldSchema.options.values ? getOptionEnumName(collectionName, fieldSchema.name) : "string";
@@ -180,8 +167,10 @@ function createTypeField(collectionName, fieldSchema) {
   }
   const typeString = typeof typeStringOrFunc === "function" ? typeStringOrFunc(fieldSchema, collectionName) : typeStringOrFunc;
   const fieldName = sanitizeFieldName(fieldSchema.name);
-  const required = fieldSchema.required ? "" : "?";
-  return `	${fieldName}${required}: ${typeString}`;
+  const required = fieldSchema.required ? "" : ".optional()";
+  const max = ("max" in fieldSchema.options && fieldSchema.options.max != null)  ? `.max(${fieldSchema.options.max})` : "";
+  const min = ("min" in fieldSchema.options && fieldSchema.options.min != null) ? `.min(${fieldSchema.options.min})` : "";
+  return `	${fieldName}: ${typeString}${max}${min}${required},`;
 }
 function createSelectOptions(recordName, schema) {
   const selectFields = schema.filter((field) => field.type === "select");
@@ -200,10 +189,11 @@ function generate(results) {
   const recordTypes = [];
   const responseTypes = [RESPONSE_TYPE_COMMENT];
   results.sort((a, b) => a.name <= b.name ? -1 : 1).forEach((row) => {
+    console.log(row.id)
     if (row.name)
       collectionNames.push(row.name);
     if (row.schema) {
-      recordTypes.push(createRecordType(row.name, row.schema));
+      recordTypes.push(createRecordType(row.name, row.id, row.schema));
       responseTypes.push(createResponseType(row));
     }
   });
@@ -211,39 +201,34 @@ function generate(results) {
   const fileParts = [
     EXPORT_COMMENT,
     createCollectionEnum(sortedCollectionNames),
-    ALIAS_TYPE_DEFINITIONS,
+    //ALIAS_TYPE_DEFINITIONS,
     BASE_SYSTEM_FIELDS_DEFINITION,
     AUTH_SYSTEM_FIELDS_DEFINITION,
     RECORD_TYPE_COMMENT,
     ...recordTypes,
     responseTypes.join("\n"),
     ALL_RECORD_RESPONSE_COMMENT,
-    createCollectionRecords(sortedCollectionNames),
-    createCollectionResponses(sortedCollectionNames)
   ];
   return fileParts.join("\n\n");
 }
-function createRecordType(name, schema) {
+function createRecordType(name,id, schema) {
   const selectOptionEnums = createSelectOptions(name, schema);
   const typeName = toPascalCase(name);
   const genericArgs = getGenericArgStringWithDefault(schema, {
     includeExpand: false
   });
   const fields = schema.map((fieldSchema) => createTypeField(name, fieldSchema)).join("\n");
-  return `${selectOptionEnums}export type ${typeName}Record${genericArgs} = {
+  return `${selectOptionEnums}export const ${typeName}Record = z.object({
 ${fields}
-}`;
+    collectionName: z.literal("${name}"),
+    collectionId: z.literal("${id}"),
+})`;
 }
 function createResponseType(collectionSchemaEntry) {
   const { name, schema, type } = collectionSchemaEntry;
   const pascaleName = toPascalCase(name);
-  const genericArgsWithDefaults = getGenericArgStringWithDefault(schema, {
-    includeExpand: true
-  });
-  const genericArgsForRecord = getGenericArgStringForRecord(schema);
   const systemFields = getSystemFields(type);
-  const expandArgString = canExpand(schema) ? `<T${EXPAND_GENERIC_NAME}>` : "";
-  return `export type ${pascaleName}Response${genericArgsWithDefaults} = ${pascaleName}Record${genericArgsForRecord} & ${systemFields}${expandArgString}`;
+  return `export const ${pascaleName}Response = ${pascaleName}Record.merge(${systemFields})`;
 }
 
 // src/cli.ts
@@ -289,7 +274,7 @@ program.name("Pocketbase Typegen").version(version).description(
 ).option(
   "-o, --out <char>",
   "path to save the typescript output file",
-  "pocketbase-types.ts"
+  "pb-zod-types.ts"
 );
 program.parse(process.argv);
 var options = program.opts();
