@@ -4,14 +4,6 @@
 import {z} from 'zod'
 
 
-export enum Collections {
-	Chats = "chats",
-	PromptLikes = "promptLikes",
-	PromptPreview = "promptPreview",
-	Prompts = "prompts",
-	Users = "users",
-}
-
 // System fields
 export const BaseSystemFields = z.object({
 	id: z.string(),
@@ -28,14 +20,20 @@ export const AuthSystemFields = z.object({
 
 // Record types for each collection
 
+export enum ChatsModelOptions {
+	"gpt-3.5-turbo" = "gpt-3.5-turbo",
+	"gpt-4" = "gpt-4",
+}
 export const ChatsRecord = z.object({
 	prompt: z.string(),
-	description: z.string().optional(),
 	createdBy: z.string().optional(),
 	released: z.boolean().optional(),
 	messages: z.object({}).optional(),
 	maxTokens: z.number().min(0),
-	temperature: z.number().max(1).min(0).optional(),
+	temperature: z.number().max(2).min(0).optional(),
+	name: z.string().optional(),
+	isTemplate: z.boolean().optional(),
+	model: z.enum(["gpt-3.5-turbo", "gpt-4"]),
     collectionName: z.literal("chats"),
     collectionId: z.literal("x46adazleyma6d3"),
 })

@@ -100,99 +100,6 @@
     "options": {}
   },
   {
-    "id": "x46adazleyma6d3",
-    "name": "chats",
-    "type": "base",
-    "system": false,
-    "schema": [
-      {
-        "id": "kborogj6",
-        "name": "prompt",
-        "type": "relation",
-        "system": false,
-        "required": true,
-        "options": {
-          "collectionId": "2lqvcutszequ6g2",
-          "cascadeDelete": true,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      },
-      {
-        "id": "atu4jafq",
-        "name": "description",
-        "type": "text",
-        "system": false,
-        "required": false,
-        "options": {
-          "min": null,
-          "max": null,
-          "pattern": ""
-        }
-      },
-      {
-        "id": "rvvhlhyd",
-        "name": "createdBy",
-        "type": "relation",
-        "system": false,
-        "required": false,
-        "options": {
-          "collectionId": "_pb_users_auth_",
-          "cascadeDelete": false,
-          "minSelect": null,
-          "maxSelect": 1,
-          "displayFields": []
-        }
-      },
-      {
-        "id": "hiupfxfe",
-        "name": "released",
-        "type": "bool",
-        "system": false,
-        "required": false,
-        "options": {}
-      },
-      {
-        "id": "hnhwucrv",
-        "name": "messages",
-        "type": "json",
-        "system": false,
-        "required": false,
-        "options": {}
-      },
-      {
-        "id": "sralppaj",
-        "name": "maxTokens",
-        "type": "number",
-        "system": false,
-        "required": true,
-        "options": {
-          "min": 0,
-          "max": null
-        }
-      },
-      {
-        "id": "qgnkts3k",
-        "name": "temperature",
-        "type": "number",
-        "system": false,
-        "required": false,
-        "options": {
-          "min": 0,
-          "max": 1
-        }
-      }
-    ],
-    "indexes": [],
-    "listRule": "@request.auth.id = createdBy.id || (prompt.public = true)",
-    "viewRule": "@request.auth.id = createdBy.id || (prompt.public = true)",
-    "createRule": "@request.auth.id = createdBy.id",
-    "updateRule": "@request.auth.id = createdBy.id && released = false",
-    "deleteRule": "@request.auth.id = createdBy.id && released = false",
-    "options": {}
-  },
-  {
     "id": "2lqvcutszequ6g2",
     "name": "prompts",
     "type": "base",
@@ -366,5 +273,120 @@
     "options": {
       "query": "SELECT\n  prompts.id,\n  prompts.name,\n  prompts.public,\n  prompts.description,\n  prompts.createdBy,\n  prompts.chat,\n  users.username as authorName,\n  COUNT(promptLikes.id) as likes\nFROM\n  prompts\n  INNER JOIN users ON users.id = prompts.createdBy\n  INNER JOIN promptLikes ON promptLikes.prompt = prompts.id\nGROUP BY prompts.id"
     }
+  },
+  {
+    "id": "x46adazleyma6d3",
+    "name": "chats",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "kborogj6",
+        "name": "prompt",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "options": {
+          "collectionId": "2lqvcutszequ6g2",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "rvvhlhyd",
+        "name": "createdBy",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "hiupfxfe",
+        "name": "released",
+        "type": "bool",
+        "system": false,
+        "required": false,
+        "options": {}
+      },
+      {
+        "id": "hnhwucrv",
+        "name": "messages",
+        "type": "json",
+        "system": false,
+        "required": false,
+        "options": {}
+      },
+      {
+        "id": "sralppaj",
+        "name": "maxTokens",
+        "type": "number",
+        "system": false,
+        "required": true,
+        "options": {
+          "min": 0,
+          "max": null
+        }
+      },
+      {
+        "id": "qgnkts3k",
+        "name": "temperature",
+        "type": "number",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      },
+      {
+        "id": "71myyhnb",
+        "name": "name",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "ml4iouct",
+        "name": "isTemplate",
+        "type": "bool",
+        "system": false,
+        "required": false,
+        "options": {}
+      },
+      {
+        "id": "boo40mks",
+        "name": "model",
+        "type": "select",
+        "system": false,
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "gpt-3.5-turbo",
+            "gpt-4"
+          ]
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id = createdBy.id || (prompt.public = true)",
+    "viewRule": "@request.auth.id = createdBy.id || (prompt.public = true)",
+    "createRule": "@request.auth.id = createdBy.id",
+    "updateRule": "@request.auth.id = createdBy.id && released = false",
+    "deleteRule": "@request.auth.id = createdBy.id && released = false",
+    "options": {}
   }
 ]

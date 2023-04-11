@@ -151,9 +151,8 @@ var pbSchemaTypescriptMap = {
   file: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? "z.string().array()" : "z.string()",
   json: (fieldSchema) => `z.object({})`,
   relation: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect === 1 ? RECORD_ID_STRING_NAME : `${RECORD_ID_STRING_NAME}[]`,
-  select: (fieldSchema, collectionName) => {
-    const valueType = fieldSchema.options.values ? getOptionEnumName(collectionName, fieldSchema.name) : "string";
-    return fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? `${valueType}[]` : valueType;
+  select: (fieldSchema) => {
+    return `z.enum([${getOptionValues(fieldSchema).map((val) => `"${val}"`).join(", ")}])`;
   },
   user: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? `${RECORD_ID_STRING_NAME}[]` : RECORD_ID_STRING_NAME
 };
@@ -200,7 +199,7 @@ function generate(results) {
   const sortedCollectionNames = collectionNames;
   const fileParts = [
     EXPORT_COMMENT,
-    createCollectionEnum(sortedCollectionNames),
+    //createCollectionEnum(sortedCollectionNames),
     //ALIAS_TYPE_DEFINITIONS,
     BASE_SYSTEM_FIELDS_DEFINITION,
     AUTH_SYSTEM_FIELDS_DEFINITION,
