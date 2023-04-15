@@ -116,6 +116,8 @@ function getSystemFields(type) {
   switch (type) {
     case "auth":
       return "AuthSystemFields";
+    case "view":
+      return "z.object({id: z.string()})"
     default:
       return "BaseSystemFields";
   }
@@ -149,7 +151,7 @@ var pbSchemaTypescriptMap = {
   url: "z.string()",
   number: "z.number()",
   file: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? "z.string().array()" : "z.string()",
-  json: (fieldSchema) => `z.object({})`,
+  json: (fieldSchema) => `z.any()`,
   relation: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect === 1 ? RECORD_ID_STRING_NAME : `${RECORD_ID_STRING_NAME}[]`,
   select: (fieldSchema) => {
     return `z.enum([${getOptionValues(fieldSchema).map((val) => `"${val}"`).join(", ")}])`;
@@ -217,17 +219,18 @@ function createRecordType(name,id, schema) {
     includeExpand: false
   });
   const fields = schema.map((fieldSchema) => createTypeField(name, fieldSchema)).join("\n");
-  return `${selectOptionEnums}export const ${typeName}Record = z.object({
-${fields}
-    collectionName: z.literal("${name}"),
-    collectionId: z.literal("${id}"),
-})`;
+  return `${selectOptionEnums}export const ${typeName}Record = z.object({${fields}
+  })`;
 }
 function createResponseType(collectionSchemaEntry) {
+  console.log(collectionSchemaEntry)
   const { name, schema, type } = collectionSchemaEntry;
   const pascaleName = toPascalCase(name);
   const systemFields = getSystemFields(type);
-  return `export const ${pascaleName}Response = ${pascaleName}Record.merge(${systemFields})`;
+  return `export const ${pascaleName}Response = ${pascaleName}Record.merge(${systemFields}).extend({
+    collectionName: z.literal("${collectionSchemaEntry.name}"),
+    collectionId: z.literal("${collectionSchemaEntry.id}"),
+  })`;
 }
 
 // src/cli.ts

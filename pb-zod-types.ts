@@ -20,65 +20,64 @@ export const AuthSystemFields = z.object({
 
 // Record types for each collection
 
-export enum ChatsModelOptions {
+export const ChatsRecord = z.object({	prompt: z.string(),
+	createdBy: z.string().optional(),
+	messages: z.any().optional(),
+	name: z.string().optional(),
+  })
+
+export const PromptLikesRecord = z.object({	prompt: z.string().optional(),
+	createdBy: z.string(),
+  })
+
+export const PromptPreviewRecord = z.object({	name: z.string().min(1),
+	public: z.boolean().optional(),
+	description: z.string().min(0).optional(),
+	createdBy: z.string(),
+	chat: z.string().optional(),
+	createdByName: z.string().optional(),
+	likes: z.number().optional(),
+  })
+
+export enum PromptsModelOptions {
 	"gpt-3.5-turbo" = "gpt-3.5-turbo",
 	"gpt-4" = "gpt-4",
 }
-export const ChatsRecord = z.object({
-	prompt: z.string(),
-	createdBy: z.string().optional(),
-	released: z.boolean().optional(),
-	messages: z.object({}).optional(),
-	maxTokens: z.number().min(0),
+export const PromptsRecord = z.object({	name: z.string().min(1),
+	createdBy: z.string(),
+	public: z.boolean().optional(),
+	description: z.string().min(0).optional(),
+	chat: z.string().optional(),
+	max_tokens: z.number().optional(),
 	temperature: z.number().max(2).min(0).optional(),
-	name: z.string().optional(),
-	isTemplate: z.boolean().optional(),
 	model: z.enum(["gpt-3.5-turbo", "gpt-4"]),
-    collectionName: z.literal("chats"),
-    collectionId: z.literal("x46adazleyma6d3"),
-})
+	messages: z.any().optional(),
+  })
 
-export const PromptLikesRecord = z.object({
-	prompt: z.string().optional(),
-	createdBy: z.string(),
-    collectionName: z.literal("promptLikes"),
-    collectionId: z.literal("ur6yby8kyhhak1o"),
-})
-
-export const PromptPreviewRecord = z.object({
-	name: z.string().min(1),
-	public: z.boolean().optional(),
-	description: z.string().min(0).optional(),
-	createdBy: z.string(),
-	chat: z.string().optional(),
-	authorName: z.string().optional(),
-	likes: z.number().optional(),
-    collectionName: z.literal("promptPreview"),
-    collectionId: z.literal("mo9lr3kz25pjpmb"),
-})
-
-export const PromptsRecord = z.object({
-	name: z.string().min(1),
-	createdBy: z.string(),
-	public: z.boolean().optional(),
-	description: z.string().min(0).optional(),
-	chat: z.string().optional(),
-    collectionName: z.literal("prompts"),
-    collectionId: z.literal("2lqvcutszequ6g2"),
-})
-
-export const UsersRecord = z.object({
-	name: z.string().optional(),
+export const UsersRecord = z.object({	name: z.string().optional(),
 	avatar: z.string().optional(),
-    collectionName: z.literal("users"),
-    collectionId: z.literal("_pb_users_auth_"),
-})
+  })
 
 // Response types include system fields and match responses from the PocketBase API
-export const ChatsResponse = ChatsRecord.merge(BaseSystemFields)
-export const PromptLikesResponse = PromptLikesRecord.merge(BaseSystemFields)
-export const PromptPreviewResponse = PromptPreviewRecord.merge(BaseSystemFields)
-export const PromptsResponse = PromptsRecord.merge(BaseSystemFields)
-export const UsersResponse = UsersRecord.merge(AuthSystemFields)
+export const ChatsResponse = ChatsRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("chats"),
+    collectionId: z.literal("x46adazleyma6d3"),
+  })
+export const PromptLikesResponse = PromptLikesRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("promptLikes"),
+    collectionId: z.literal("ur6yby8kyhhak1o"),
+  })
+export const PromptPreviewResponse = PromptPreviewRecord.merge(z.object({id: z.string()})).extend({
+    collectionName: z.literal("promptPreview"),
+    collectionId: z.literal("mo9lr3kz25pjpmb"),
+  })
+export const PromptsResponse = PromptsRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("prompts"),
+    collectionId: z.literal("2lqvcutszequ6g2"),
+  })
+export const UsersResponse = UsersRecord.merge(AuthSystemFields).extend({
+    collectionName: z.literal("users"),
+    collectionId: z.literal("_pb_users_auth_"),
+  })
 
 // Types containing all Records and Responses, useful for creating typing helper functions
