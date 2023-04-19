@@ -59,6 +59,7 @@ export const BaseSystemFields = z.object({
 	id: z.string(),
 	created: z.coerce.date(),
 	updated: z.coerce.date(),
+    expand: z.object({})
 })`;
 var AUTH_SYSTEM_FIELDS_DEFINITION = `export const AuthSystemFields = z.object({
 	email: z.string(),
@@ -146,9 +147,9 @@ var pbSchemaTypescriptMap = {
   bool: "z.boolean()",
   date: "z.coerce.date()",
   editor: "z.string()",
-  email: "z.string()",
+  email: "z.string().email()",
   text: "z.string()",
-  url: "z.string()",
+  url: "z.string().url()",
   number: "z.number()",
   file: (fieldSchema) => fieldSchema.options.maxSelect && fieldSchema.options.maxSelect > 1 ? "z.string().array()" : "z.string()",
   json: (fieldSchema) => `z.any()`,
@@ -219,7 +220,8 @@ function createRecordType(name,id, schema) {
     includeExpand: false
   });
   const fields = schema.map((fieldSchema) => createTypeField(name, fieldSchema)).join("\n");
-  return `${selectOptionEnums}export const ${typeName}Record = z.object({${fields}
+  return `${selectOptionEnums}export const ${typeName}Record = z.object({
+  ${fields}
   })`;
 }
 function createResponseType(collectionSchemaEntry) {
