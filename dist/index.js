@@ -39,7 +39,7 @@ async function fromURL(url, email = "", password = "") {
 
 // src/constants.ts
 var EXPORT_COMMENT = `/**
-* This file was @generated using pocketbase-typegen
+* This file was @generated using pocketbase-zod-typegen
 */
 import {z} from 'zod'
 `;
@@ -67,6 +67,23 @@ var AUTH_SYSTEM_FIELDS_DEFINITION = `export const AuthSystemFields = z.object({
 	username: z.string(),
 	verified: z.boolean(),
 }).merge(BaseSystemFields)`;
+
+//Make it so it exports some type of object like this
+/*
+export class pocketbase_zod {
+  private pocketbase: import('pocketbase').default
+  private cls: T
+
+  constructor(pocketbase: import('pocketbase').default, cls: T) {
+      this.pocketbase = pocketbase
+      this.class = cls
+  }
+
+  collectionSchema (schema: z.AnyZodObject, cls: pocketbase_zod) {
+    return new pocketbase_zod(this.pocketbase, schema)
+  }
+}
+*/
 
 // src/generics.ts
 function fieldNameToGeneric(name) {

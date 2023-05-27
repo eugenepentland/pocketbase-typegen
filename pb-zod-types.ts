@@ -1,5 +1,5 @@
 /**
-* This file was @generated using pocketbase-typegen
+* This file was @generated using pocketbase-zod-typegen
 */
 import {z} from 'zod'
 
@@ -21,78 +21,56 @@ export const AuthSystemFields = z.object({
 
 // Record types for each collection
 
-export const CascadesRecord = z.object({
-  	name: z.string(),
-  })
-
-export const ConfigsRecord = z.object({
-  	name: z.string(),
-	lo_mhz: z.number().optional(),
-	rf_mhz: z.number().optional(),
+export const FreqPlansRecord = z.object({
+  	name: z.string().optional(),
 	span_mhz: z.number().optional(),
-	input_level_dbm: z.number().optional(),
-	cascade: z.string(),
-	p1db: z.number().optional(),
-	ip3: z.number().optional(),
-	gain: z.number().optional(),
-	nf: z.number().optional(),
-	matlab: z.string().optional(),
-	description: z.string().optional(),
-	channelCost: z.number().min(0).optional(),
+	if_cf_mhz: z.number().optional(),
   })
 
-export const ConfigsListRecord = z.object({
-  	name: z.any().optional(),
-	cascade: z.any().optional(),
-	p1db: z.any().optional(),
-	gain: z.any().optional(),
-	nf: z.any().optional(),
-	description: z.any().optional(),
-	ip3: z.any().optional(),
-	channelCost: z.any().optional(),
-  })
-
-export const EdgesRecord = z.object({
-  	node: z.string(),
-	s_param_name: z.string().optional(),
-	config: z.string(),
-	p1dB: z.number().optional(),
-	ip3: z.number().optional(),
-	nf: z.number().optional(),
-	output_level_dbm: z.number().optional(),
-	input_level_dbm: z.number().optional(),
-	systemGain: z.number().optional(),
-  })
-
-export const NodesRecord = z.object({
-  	part: z.string(),
-	x: z.number().optional(),
-	y: z.number().optional(),
-	cascade: z.string(),
-	mirrored: z.boolean().optional(),
-	rotation: z.number().max(360).min(0).optional(),
-  })
-
-export enum PartsTagsOptions {
-	"linear" = "linear",
-	"positive gain" = "positive gain",
-}
 export const PartsRecord = z.object({
-  	name: z.string(),
-	s_params: z.string().array().optional(),
-	p1dB: z.number().optional(),
-	ip3: z.number().optional(),
-	tags: z.enum(["linear", "positive gain"]).optional(),
-	nf: z.number().optional(),
-	price: z.number().min(0).optional(),
-	datasheet: z.string().optional(),
-	gain: z.number().optional(),
-	type: z.string(),
+  	name: z.string().optional(),
+	part_number: z.string().optional(),
   })
 
-export const TypesRecord = z.object({
-  	name: z.string(),
-	symbol: z.string(),
+export const RfBandsRecord = z.object({
+  	name: z.string().optional(),
+	freq_plan: z.string().optional(),
+	rf_center_freq_mhz: z.number().optional(),
+	lo_1_freq_mhz: z.number().optional(),
+	lo_2_freq_mhz: z.number().optional(),
+	spectrum_flip: z.boolean().optional(),
+  })
+
+export const SystemsRecord = z.object({
+  	serial_number: z.number().optional(),
+	part: z.string().optional(),
+	customer: z.string().optional(),
+  })
+
+export const TestDataRecord = z.object({
+  	gain_db: z.number().optional(),
+	rf_freq_mhz: z.number().optional(),
+	if_freq_mhz: z.number().optional(),
+	test_instance: z.string().optional(),
+	rf_band: z.string().optional(),
+  })
+
+export const TestInstancesRecord = z.object({
+  	test: z.string().optional(),
+	system: z.string().optional(),
+	channel: z.number().optional(),
+  })
+
+export const TestsRecord = z.object({
+  	part: z.string().optional(),
+	input_level_dbm: z.number().optional(),
+	attenuation_db: z.number().optional(),
+	rf_filter_enabled: z.boolean().optional(),
+	description: z.string().optional(),
+	freq_plan: z.string().optional(),
+	gain: z.boolean().optional(),
+	spurious: z.boolean().optional(),
+	p1db: z.boolean().optional(),
   })
 
 export const UsersRecord = z.object({
@@ -101,33 +79,33 @@ export const UsersRecord = z.object({
   })
 
 // Response types include system fields and match responses from the PocketBase API
-export const CascadesResponse = CascadesRecord.merge(BaseSystemFields).extend({
-    collectionName: z.literal("cascades"),
-    collectionId: z.literal("yr6ojgwc2gfic98"),
-  })
-export const ConfigsResponse = ConfigsRecord.merge(BaseSystemFields).extend({
-    collectionName: z.literal("configs"),
-    collectionId: z.literal("bt426vcafqr59cp"),
-  })
-export const ConfigsListResponse = ConfigsListRecord.merge(z.object({id: z.string()})).extend({
-    collectionName: z.literal("configsList"),
-    collectionId: z.literal("uuhfp8w3cyxehd6"),
-  })
-export const EdgesResponse = EdgesRecord.merge(BaseSystemFields).extend({
-    collectionName: z.literal("edges"),
-    collectionId: z.literal("yo4geni5ylk33ae"),
-  })
-export const NodesResponse = NodesRecord.merge(BaseSystemFields).extend({
-    collectionName: z.literal("nodes"),
-    collectionId: z.literal("wajiw86rg1vzuck"),
+export const FreqPlansResponse = FreqPlansRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("freq_plans"),
+    collectionId: z.literal("4iokujhnd2sg9u8"),
   })
 export const PartsResponse = PartsRecord.merge(BaseSystemFields).extend({
     collectionName: z.literal("parts"),
-    collectionId: z.literal("yvczv21zgho5rns"),
+    collectionId: z.literal("0u2giwo7ny5iwlc"),
   })
-export const TypesResponse = TypesRecord.merge(BaseSystemFields).extend({
-    collectionName: z.literal("types"),
-    collectionId: z.literal("tuq81c8ldyz7nqx"),
+export const RfBandsResponse = RfBandsRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("rf_bands"),
+    collectionId: z.literal("zviznvjo4hly6ln"),
+  })
+export const SystemsResponse = SystemsRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("systems"),
+    collectionId: z.literal("56tecmy9gh9brmd"),
+  })
+export const TestDataResponse = TestDataRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("test_data"),
+    collectionId: z.literal("fycpgoi5hhaiqtb"),
+  })
+export const TestInstancesResponse = TestInstancesRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("test_instances"),
+    collectionId: z.literal("42wc6800oqrui2l"),
+  })
+export const TestsResponse = TestsRecord.merge(BaseSystemFields).extend({
+    collectionName: z.literal("tests"),
+    collectionId: z.literal("ljs7mcjwde4twhh"),
   })
 export const UsersResponse = UsersRecord.merge(AuthSystemFields).extend({
     collectionName: z.literal("users"),
