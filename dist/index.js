@@ -246,10 +246,14 @@ function createResponseType(collectionSchemaEntry) {
   const { name, schema, type } = collectionSchemaEntry;
   const pascaleName = toPascalCase(name);
   const systemFields = getSystemFields(type);
-  return `export const ${pascaleName}Response = ${pascaleName}Record.merge(${systemFields}).extend({
-    collectionName: z.literal("${collectionSchemaEntry.name}"),
-    collectionId: z.literal("${collectionSchemaEntry.id}"),
-  })`;
+  return `export const ${pascaleName}Response = ${pascaleName}Record.merge(${systemFields})
+  
+export const ${pascaleName}Collection = {
+  responseSchema: ${pascaleName}Response,
+  recordSchema: ${pascaleName}Record,
+  collectionName: "${collectionSchemaEntry.name}",
+  collectionId: "${collectionSchemaEntry.id}",
+}`;
 }
 
 // src/cli.ts
